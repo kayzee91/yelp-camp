@@ -5,6 +5,8 @@
     <form
       action="/campgrounds/<%= campground._id %>?_method=PUT "
       method="POST"
+      novalidate
+      class="needs-validation"
     >
       <div class="mb-3">
         <label class="form-label" for="title">Title</label>
@@ -15,7 +17,12 @@
           placeholder="New Campground"
           name="campground[title]"
           value="<%= campground.title %> "
+          required
         />
+        <div class="valid-feedback">Looks good!</div>
+        <div class="invalid-feedback">
+          Please give a title for the campground.
+        </div>
       </div>
 
       <div class="mb-3">
@@ -27,7 +34,12 @@
           placeholder="Campground Location"
           name="campground[location]"
           value="<%= campground.location %> "
+          required
         />
+        <div class="valid-feedback">Looks good!</div>
+        <div class="invalid-feedback">
+          Please give a location for the campground.
+        </div>
       </div>
 
       <div class="mb-3">
@@ -39,7 +51,12 @@
           placeholder="Campground Image"
           name="campground[image]"
           value="<%= campground.image %> "
+          required
         />
+        <div class="valid-feedback">Looks good!</div>
+        <div class="invalid-feedback">
+          Please give a image for the campground.
+        </div>
       </div>
 
       <div class="mb-3">
@@ -50,9 +67,14 @@
           id="description"
           placeholder="Campground description"
           name="campground[description]"
+          required
         >
 <%=campground.description%></textarea
         >
+        <div class="valid-feedback">Looks good!</div>
+        <div class="invalid-feedback">
+          Please give a description for the campground.
+        </div>
       </div>
 
       <div class="mb-3">
@@ -66,8 +88,13 @@
             placeholder="Amount (to the nearest dollar)"
             name="campground[price]"
             value="<%= campground.price %> "
+            required
           />
           <span class="input-group-text">.00</span>
+          <div class="valid-feedback">Looks good!</div>
+          <div class="invalid-feedback">
+            Please give a price for the campground.
+          </div>
         </div>
       </div>
 

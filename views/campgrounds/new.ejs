@@ -2,7 +2,12 @@
 <div class="row">
   <h1 class="text-center">New Campground</h1>
   <div class="col-6 offset-3">
-    <form action="/campgrounds" method="POST">
+    <form
+      action="/campgrounds"
+      method="POST"
+      novalidate
+      class="needs-validation"
+    >
       <div class="mb-3">
         <label class="form-label" for="title">Title</label>
         <input
@@ -11,7 +16,12 @@
           id="title"
           placeholder="New Campground"
           name="campground[title]"
+          required
         />
+        <div class="valid-feedback">Looks good!</div>
+        <div class="invalid-feedback">
+          Please give a title for the campground.
+        </div>
       </div>
 
       <div class="mb-3">
@@ -22,7 +32,12 @@
           id="location"
           placeholder="Campground Location"
           name="campground[location]"
+          required
         />
+        <div class="valid-feedback">Looks good!</div>
+        <div class="invalid-feedback">
+          Please give a location for the campground.
+        </div>
       </div>
 
       <div class="mb-3">
@@ -33,7 +48,12 @@
           id="image"
           placeholder="Campground Image"
           name="campground[image]"
+          required
         />
+        <div class="valid-feedback">Looks good!</div>
+        <div class="invalid-feedback">
+          Please give a image for the campground.
+        </div>
       </div>
 
       <div class="mb-3">
@@ -44,10 +64,15 @@
           id="description"
           placeholder="Campground description"
           name="campground[description]"
+          required
         ></textarea>
+        <div class="valid-feedback">Looks good!</div>
+        <div class="invalid-feedback">
+          Please give a description for the campground.
+        </div>
       </div>
 
-      <div class="mb-3">
+      <div>
         <label class="form-label" for="price">Price</label>
         <div class="input-group">
           <span class="input-group-text">$</span>
@@ -57,8 +82,14 @@
             class="form-control"
             placeholder="Amount (to the nearest dollar)"
             name="campground[price]"
+            required
           />
+
           <span class="input-group-text">.00</span>
+          <div class="valid-feedback">Looks good!</div>
+          <div class="invalid-feedback">
+            Please give a price for the campground.
+          </div>
         </div>
       </div>
 
