@@ -4,6 +4,8 @@ const port = 3000;
 const path = require("path");
 const Campground = require("./models/campground");
 const methodOverride = require("method-override");
+//*joi as validater
+const { campgroundSchema } = require("./schemas.js");
 //*connecting boilerplate using ejs-mate
 const ejsMate = require("ejs-mate");
 //*connect mongoose
@@ -40,6 +42,17 @@ app.use(express.urlencoded({ extended: true }));
 //*overidemethod
 app.use(methodOverride("_method"));
 
+//* Joi middleware function
+const validateCampground = (req, res, next) => {
+  const { error } = campgroundSchema.validate(req.body);
+  if (error) {
+    const msj = error.details.map((el) => el.message).join(",");
+    throw new ExpressError(msj, 400);
+  } else {
+    next();
+  }
+};
+
 //* route
 app.get("/", (req, res) => {
   res.render("Home");
@@ -60,6 +73,7 @@ app.get("/campgrounds/new", (req, res) => {
 
 app.post(
   "/campgrounds",
+  validateCampground,
   catchAsync(async (req, res, next) => {
     const campground = new Campground(req.body.campground);
     await campground.save();
@@ -85,6 +99,7 @@ app.get(
 );
 app.put(
   "/campgrounds/:id",
+  validateCampground,
   catchAsync(async (req, res, next) => {
     const { id } = req.params;
     const campground = await Campground.findByIdAndUpdate(id, {
