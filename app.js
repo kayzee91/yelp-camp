@@ -3,9 +3,10 @@ const app = express();
 const port = 3000;
 const path = require("path");
 const Campground = require("./models/campground");
+const Review = require("./models/review");
 const methodOverride = require("method-override");
 //*joi as validater
-const { campgroundSchema } = require("./schemas.js");
+const { campgroundSchema, reviewSchema } = require("./schemas.js");
 //*connecting boilerplate using ejs-mate
 const ejsMate = require("ejs-mate");
 //*connect mongoose
@@ -115,6 +116,20 @@ app.delete(
     const { id } = req.params;
     await Campground.findByIdAndDelete(id);
     res.redirect("/campgrounds");
+  })
+);
+
+//*routes for review model
+app.post(
+  "/campgrounds/:id/reviews",
+  catchAsync(async (req, res, next) => {
+    const { id } = req.params;
+    const campground = await Campground.findById(id);
+    const review = new Review(req.body.review);
+    campground.reviews.push(review);
+    await review.save();
+    await campground.save();
+    res.redirect(`/campgrounds/${campground._id}`);
   })
 );
 
