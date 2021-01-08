@@ -30,7 +30,15 @@
         </form>
       </div>
     </div>
-
+    <div class="mb-3">
+      <h2>All Reviews:</h2>
+      <%for(let review of campground.reviews){%>
+      <li>
+        <strong>Comment:</strong> <%= review.body %> -
+        <strong>Rating</strong> <%=review.rating %>
+      </li>
+      <%}%>
+    </div>
     <h2>Leave a review!</h2>
     <form
       action="/campgrounds/<%= campground._id %>/reviews"
