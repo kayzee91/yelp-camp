@@ -1,7 +1,7 @@
 <% layout("/layouts/boilerplate") %>
 
 <div class="row">
-  <div class="col-6 offset-3">
+  <div class="col-6">
     <h1><%= campground.title %></h1>
     <h2><%= campground.location %></h2>
     <div class="card mb-3">
@@ -30,15 +30,8 @@
         </form>
       </div>
     </div>
-    <div class="mb-3">
-      <h2>All Reviews:</h2>
-      <%for(let review of campground.reviews){%>
-      <li>
-        <strong>Comment:</strong> <%= review.body %> -
-        <strong>Rating</strong> <%=review.rating %>
-      </li>
-      <%}%>
-    </div>
+  </div>
+  <div class="col-6">
     <h2>Leave a review!</h2>
     <form
       action="/campgrounds/<%= campground._id %>/reviews"
@@ -72,5 +65,22 @@
       </div>
       <button class="btn btn-success">Submit Review</button>
     </form>
+    <div class="mb-3">
+      <%for(let review of campground.reviews){%>
+      <div class="card mb-3">
+        <div class="card-body">
+          <h5 class="card-title">Rating: <%=review.rating %></h5>
+          <p class="card-text"><%=review.body %></p>
+          <form
+            action="/campgrounds/<%= campground._id %>/reviews/<%= review._id %>?_method=DELETE"
+            method="POST"
+          >
+          <button class="btn btn-sm btn-danger">
+            Delete
+          </butto></form>
+        </div>
+      </div>
+      <%}%>
+    </div>
   </div>
 </div>
