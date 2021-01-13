@@ -6,7 +6,7 @@ const Campground = require("../models/campground");
 const catchAsync = require("../utilities/catchAsync");
 const ExpressError = require("../utilities/ExpressError");
 //*joi as validater
-const { campgroundSchema, reviewSchema } = require("../schemas.js");
+const { campgroundSchema } = require("../schemas.js");
 
 //* Joi middleware function
 const validateCampground = (req, res, next) => {
@@ -30,7 +30,7 @@ router.get(
 );
 
 //! this route is above the campground/id route so that it can work, if not the word "new" will be treated as an ID
-router.get("//new", (req, res) => {
+router.get("/new", (req, res) => {
   res.render("campgrounds/new");
 });
 

@@ -2,8 +2,6 @@ const express = require("express");
 const app = express();
 const port = 3000;
 const path = require("path");
-const Campground = require("./models/campground");
-const Review = require("./models/review");
 const methodOverride = require("method-override");
 //*joi as validater
 const { campgroundSchema, reviewSchema } = require("./schemas.js");
@@ -18,8 +16,8 @@ mongoose.connect("mongodb://localhost:27017/yelp-camp", {
   useFindAndModify: false,
 });
 
-//*let express know to use public folder
-app.use(express.static(path.join(__dirname, "public")));
+//*import Express Error
+const ExpressError = require("./utilities/ExpressError");
 
 //*database connection
 const db = mongoose.connection;
@@ -28,13 +26,12 @@ db.once("open", () => {
   console.log("Connected to MongoDB");
 });
 
-//*import Express Error
-const catchAsync = require("./utilities/catchAsync");
-const ExpressError = require("./utilities/ExpressError");
+//* import router
+const campgrounds = require("./routes/campgrounds");
+app.use("/campgrounds", campgrounds);
 
-app.listen(port, () => {
-  console.log(`App listening at http://localhost:${port}`);
-});
+const reviews = require("./routes/reviews");
+app.use("/campgrounds/:id/reviews", reviews);
 
 //*setup views
 app.engine("ejs", ejsMate);
@@ -47,47 +44,26 @@ app.use(express.urlencoded({ extended: true }));
 //*overidemethod
 app.use(methodOverride("_method"));
 
-//* Joi middleware function
-const validateCampground = (req, res, next) => {
-  const { error } = campgroundSchema.validate(req.body);
-  if (error) {
-    const msj = error.details.map((el) => el.message).join(",");
-    throw new ExpressError(msj, 400);
-  } else {
-    next();
-  }
-};
-
-const validateReview = (req, res, next) => {
-  const { error } = reviewSchema.validate(req.body);
-  if (error) {
-    const msj = error.details.map((el) => el.message).join(",");
-    throw new ExpressError(msj, 400);
-  } else {
-    next();
-  }
-};
+//*let express know to use public folder
+app.use(express.static(path.join(__dirname, "public")));
 
 //* home route
 app.get("/", (req, res) => {
   res.render("Home");
 });
 
-//* import router
-const campgrounds = require("./routes/campgrounds");
-app.use("/campgrounds", campgrounds);
-
-const reviews = require("./routes/reviews");
-app.use("/campgrounds/:id/reviews", reviews);
-
 //* Error handling if no route matches
 app.all("*", (req, res, next) => {
   next(new ExpressError("Page Not Found", 404));
 });
-//* Error Handling
 
+//* Error Handling
 app.use((err, req, res, next) => {
   const { statusCode = 500 } = err;
   if (!err.message) err.message = "Something went wrong!";
   res.status(statusCode).render("error", { err });
+});
+
+app.listen(port, () => {
+  console.log(`App listening at http://localhost:${port}`);
 });
