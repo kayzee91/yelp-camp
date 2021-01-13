@@ -1,4 +1,5 @@
 const Joi = require("joi");
+const { number } = require("joi");
 
 //* create schema for campground using JOI for validation
 module.exports.campgroundSchema = Joi.object({
