@@ -3,6 +3,8 @@ const app = express();
 const port = 3000;
 const path = require("path");
 const methodOverride = require("method-override");
+const session = require("express-session");
+const flash = require("connect-flash");
 //*joi as validater
 const { campgroundSchema, reviewSchema } = require("./schemas.js");
 //*connecting boilerplate using ejs-mate
@@ -26,12 +28,27 @@ db.once("open", () => {
   console.log("Connected to MongoDB");
 });
 
-//* import router
-const campgrounds = require("./routes/campgrounds");
-app.use("/campgrounds", campgrounds);
+//* session (always place session above routes)
+const sessionConfig = {
+  secret: "thisshouldbeabettersecret!",
+  resave: false,
+  saveUninitialized: true,
+  cookie: {
+    httpOnly: true,
+    expires: Date.now() + 604800000, // the number need to be in milliseconds (to show 1 week , convert milliseconds in one week)
+    maxAge: 604800000,
+  },
+};
+app.use(session(sessionConfig));
 
-const reviews = require("./routes/reviews");
-app.use("/campgrounds/:id/reviews", reviews);
+//*connect flash
+app.use(flash());
+//*flash middle ware(must be above route handlers)
+app.use((req, res, next) => {
+  res.locals.success = req.flash("success");
+  res.locals.error = req.flash("error");
+  next();
+});
 
 //*setup views
 app.engine("ejs", ejsMate);
@@ -46,6 +63,13 @@ app.use(methodOverride("_method"));
 
 //*let express know to use public folder
 app.use(express.static(path.join(__dirname, "public")));
+
+//* import route handlers
+const campgrounds = require("./routes/campgrounds");
+app.use("/campgrounds", campgrounds);
+
+const reviews = require("./routes/reviews");
+app.use("/campgrounds/:id/reviews", reviews);
 
 //* home route
 app.get("/", (req, res) => {
