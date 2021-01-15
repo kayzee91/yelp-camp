@@ -2,22 +2,9 @@ const express = require("express");
 const router = express.Router({ mergeParams: true });
 const Review = require("../models/review");
 const Campground = require("../models/campground");
+const { validateReview } = require("../middleware");
 //*import Express Error
 const catchAsync = require("../utilities/catchAsync");
-const ExpressError = require("../utilities/ExpressError");
-//*joi as validater
-const { campgroundSchema, reviewSchema } = require("../schemas.js");
-
-//* Joi middleware function
-const validateReview = (req, res, next) => {
-  const { error } = reviewSchema.validate(req.body);
-  if (error) {
-    const msj = error.details.map((el) => el.message).join(",");
-    throw new ExpressError(msj, 400);
-  } else {
-    next();
-  }
-};
 
 //*routes for review model
 router.post(
