@@ -48,12 +48,6 @@ app.use(session(sessionConfig));
 
 //*connect flash
 app.use(flash());
-//*flash middle ware(must be above route handlers)
-app.use((req, res, next) => {
-  res.locals.success = req.flash("success");
-  res.locals.error = req.flash("error");
-  next();
-});
 
 //*setup views
 app.engine("ejs", ejsMate);
@@ -75,6 +69,14 @@ app.use(passport.session());
 passport.use(new LocalStrategy(User.authenticate()));
 passport.serializeUser(User.serializeUser());
 passport.deserializeUser(User.deserializeUser());
+
+//*flash middle ware(must be above route handlers)
+app.use((req, res, next) => {
+  res.locals.currentUser = req.user;
+  res.locals.success = req.flash("success");
+  res.locals.error = req.flash("error");
+  next();
+});
 
 //* import route handlers
 const campgroundRoutes = require("./routes/campgrounds");
