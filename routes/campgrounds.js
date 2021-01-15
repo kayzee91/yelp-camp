@@ -5,6 +5,7 @@ const Campground = require("../models/campground");
 //*import Express Error
 const catchAsync = require("../utilities/catchAsync");
 const ExpressError = require("../utilities/ExpressError");
+const { isLoggedIn } = require("../middleware");
 //*joi as validater
 const { campgroundSchema } = require("../schemas.js");
 
@@ -30,13 +31,15 @@ router.get(
 );
 
 //! this route is above the campground/id route so that it can work, if not the word "new" will be treated as an ID
-router.get("/new", (req, res) => {
+
+router.get("/new", isLoggedIn, (req, res) => {
   res.render("campgrounds/new");
 });
 
 router.post(
   "/",
   validateCampground,
+  isLoggedIn,
   catchAsync(async (req, res, next) => {
     const campground = new Campground(req.body.campground);
     await campground.save();

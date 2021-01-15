@@ -5,11 +5,16 @@ const path = require("path");
 const methodOverride = require("method-override");
 const session = require("express-session");
 const flash = require("connect-flash");
+const User = require("./models/user");
 //*joi as validater
 const { campgroundSchema, reviewSchema } = require("./schemas.js");
 //*connecting boilerplate using ejs-mate
 const ejsMate = require("ejs-mate");
-//*connect mongoose
+//* passport
+const passport = require("passport");
+const LocalStrategy = require("passport-local");
+
+//*connect mongoose(db connection)
 const mongoose = require("mongoose");
 mongoose.connect("mongodb://localhost:27017/yelp-camp", {
   useNewUrlParser: true,
@@ -28,7 +33,7 @@ db.once("open", () => {
   console.log("Connected to MongoDB");
 });
 
-//* session (always place session above routes)
+//* session (always place session above routes & passport)
 const sessionConfig = {
   secret: "thisshouldbeabettersecret!",
   resave: false,
@@ -64,12 +69,22 @@ app.use(methodOverride("_method"));
 //*let express know to use public folder
 app.use(express.static(path.join(__dirname, "public")));
 
-//* import route handlers
-const campgrounds = require("./routes/campgrounds");
-app.use("/campgrounds", campgrounds);
+//* setup passport authentication
+app.use(passport.initialize());
+app.use(passport.session());
+passport.use(new LocalStrategy(User.authenticate()));
+passport.serializeUser(User.serializeUser());
+passport.deserializeUser(User.deserializeUser());
 
-const reviews = require("./routes/reviews");
-app.use("/campgrounds/:id/reviews", reviews);
+//* import route handlers
+const campgroundRoutes = require("./routes/campgrounds");
+app.use("/campgrounds", campgroundRoutes);
+
+const reviewRoutes = require("./routes/reviews");
+app.use("/campgrounds/:id/reviews", reviewRoutes);
+
+const userRoutes = require("./routes/users");
+app.use("/", userRoutes);
 
 //* home route
 app.get("/", (req, res) => {
