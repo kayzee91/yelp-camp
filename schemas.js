@@ -10,6 +10,7 @@ module.exports.campgroundSchema = Joi.object({
     location: Joi.string().required(),
     description: Joi.string().required(),
   }).required(),
+  deleteImages: Joi.array(),
 });
 
 //* create schema for review using JOI for validation
