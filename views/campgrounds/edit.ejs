@@ -80,15 +80,25 @@
           <div class="invalid-feedback">Please give a price for the campground.</div>
         </div>
       </div>
-
-      <div class="mb-3">
-        <% campground.images.forEach(function(img,i){ %>
-        <img src="<%=img.url%> " alt="" class="img-thumbnail" />
-        <div class="form-check-inline">
-          <input type="checkbox" id="image-<%=i%>" name="deleteImages[]" value="<%=img.filename%>" />
+      <h6 class="text-danger">Delete Images</h6>
+      <div class="row row-cols-1 row-cols-md-4 g-4 mb-3">
+        <% campground.images.forEach(function(img, i) { %>
+        <div class="col">
+          <div class="card">
+            <img src="<%=img.thumbnail %>" class="img-thumbnail" alt="" />
+            <div class="form-check-inline card-img-overlay text-end pt-1 pe-2">
+              <label class="visually-hidden" for="image-<%=i%>">Delete</label>
+              <input
+                type="checkbox"
+                id="image-<%=i%>"
+                name="deleteImages[]"
+                value="<%=img.filename%>"
+                class="form-check-input"
+              />
+            </div>
+          </div>
         </div>
-        <label for="image-<%=i%>">Delete</label>
-        <% }) %>
+        <% })%>
       </div>
 
       <div class="mt-3">
