@@ -10,6 +10,7 @@ const methodOverride = require("method-override");
 const session = require("express-session");
 const flash = require("connect-flash");
 const User = require("./models/user");
+const mongoSanitize = require("express-mongo-sanitize");
 //*joi as validater
 const { campgroundSchema, reviewSchema } = require("./schemas.js");
 //*connecting boilerplate using ejs-mate
@@ -39,11 +40,13 @@ db.once("open", () => {
 
 //* session (always place session above routes & passport)
 const sessionConfig = {
+  name: "bisc",
   secret: "thisshouldbeabettersecret!",
   resave: false,
   saveUninitialized: true,
   cookie: {
     httpOnly: true,
+    // secure: true, //* to allow only https user can access our website
     expires: Date.now() + 604800000, // the number need to be in milliseconds (to show 1 week , convert milliseconds in one week)
     maxAge: 604800000,
   },
@@ -63,6 +66,9 @@ app.use(express.urlencoded({ extended: true }));
 
 //*overidemethod
 app.use(methodOverride("_method"));
+
+//*mongo-sanitize
+app.use(mongoSanitize());
 
 //*let express know to use public folder
 app.use(express.static(path.join(__dirname, "public")));
