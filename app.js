@@ -11,6 +11,8 @@ const session = require("express-session");
 const flash = require("connect-flash");
 const User = require("./models/user");
 const mongoSanitize = require("express-mongo-sanitize");
+const helmet = require("helmet");
+const MongoStore = require("connect-mongo")(session);
 //*joi as validater
 const { campgroundSchema, reviewSchema } = require("./schemas.js");
 //*connecting boilerplate using ejs-mate
@@ -20,13 +22,20 @@ const passport = require("passport");
 const LocalStrategy = require("passport-local");
 
 //*connect mongoose(db connection)
+
+const dbUrl = process.env.DB_URL || "mongodb://localhost:27017/yelp-camp";
 const mongoose = require("mongoose");
-mongoose.connect("mongodb://localhost:27017/yelp-camp", {
+mongoose.connect(dbUrl, {
   useNewUrlParser: true,
   useCreateIndex: true,
   useUnifiedTopology: true,
   useFindAndModify: false,
 });
+
+//* import route handlers
+const campgroundRoutes = require("./routes/campgrounds");
+const reviewRoutes = require("./routes/reviews");
+const userRoutes = require("./routes/users");
 
 //*import Express Error
 const ExpressError = require("./utilities/ExpressError");
@@ -39,9 +48,19 @@ db.once("open", () => {
 });
 
 //* session (always place session above routes & passport)
+const secret = process.env.SECRET || "thisshouldbeabettersecret!";
+const store = new MongoStore({
+  url: dbUrl,
+  secret,
+  touchAfter: 24 * 3600,
+});
+store.on("error", function (err) {
+  console.log("Session store error", err);
+});
 const sessionConfig = {
-  name: "bisc",
-  secret: "thisshouldbeabettersecret!",
+  store,
+  name: "ids",
+  secret,
   resave: false,
   saveUninitialized: true,
   cookie: {
@@ -55,6 +74,53 @@ app.use(session(sessionConfig));
 
 //*connect flash
 app.use(flash());
+
+//* helmet
+
+const scriptSrcUrls = [
+  "https://stackpath.bootstrapcdn.com/",
+  "https://api.tiles.mapbox.com/",
+  "https://api.mapbox.com/",
+  "https://kit.fontawesome.com/",
+  "https://cdnjs.cloudflare.com/",
+  "https://cdn.jsdelivr.net",
+];
+const styleSrcUrls = [
+  "https://kit-free.fontawesome.com/",
+  "https://stackpath.bootstrapcdn.com/",
+  "https://api.mapbox.com/",
+  "https://api.tiles.mapbox.com/",
+  "https://fonts.googleapis.com/",
+  "https://use.fontawesome.com/",
+  "https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css",
+];
+const connectSrcUrls = [
+  "https://api.mapbox.com/",
+  "https://a.tiles.mapbox.com/",
+  "https://b.tiles.mapbox.com/",
+  "https://events.mapbox.com/",
+];
+const fontSrcUrls = [];
+app.use(
+  helmet.contentSecurityPolicy({
+    directives: {
+      defaultSrc: [],
+      connectSrc: ["'self'", ...connectSrcUrls],
+      scriptSrc: ["'unsafe-inline'", "'self'", ...scriptSrcUrls],
+      styleSrc: ["'self'", "'unsafe-inline'", ...styleSrcUrls],
+      workerSrc: ["'self'", "blob:"],
+      objectSrc: [],
+      imgSrc: [
+        "'self'",
+        "blob:",
+        "data:",
+        "https://res.cloudinary.com/yelpcampkz/", //SHOULD MATCH YOUR CLOUDINARY ACCOUNT!
+        "https://images.unsplash.com/",
+      ],
+      fontSrc: ["'self'", ...fontSrcUrls],
+    },
+  })
+);
 
 //*setup views
 app.engine("ejs", ejsMate);
@@ -89,13 +155,8 @@ app.use((req, res, next) => {
 });
 
 //* import route handlers
-const campgroundRoutes = require("./routes/campgrounds");
 app.use("/campgrounds", campgroundRoutes);
-
-const reviewRoutes = require("./routes/reviews");
 app.use("/campgrounds/:id/reviews", reviewRoutes);
-
-const userRoutes = require("./routes/users");
 app.use("/", userRoutes);
 
 //* home route
